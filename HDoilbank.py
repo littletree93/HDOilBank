@@ -59,6 +59,20 @@ def remove_separators(text: str) -> str:
     text = re.sub(r'\n{3,}', '\n\n', text)
     return text.strip()
 
+
+def normalize_chat_role(role: str) -> str:
+    """과거/외부 role 값을 Streamlit 표준 role로 정규화합니다."""
+    if role in ("user", "assistant"):
+        return role
+    role_map = {
+        "human": "user",
+        "face": "user",
+        "ai": "assistant",
+        "smart_toy": "assistant",
+        "bot": "assistant",
+    }
+    return role_map.get(str(role).strip().lower(), "assistant")
+
 # LLM 모델 선택 함수
 def get_llm(model_name: str, temperature: float = 0.7) -> Any:
     """선택된 모델명에 따라 적절한 LLM 인스턴스를 반환합니다."""
@@ -222,6 +236,13 @@ st.markdown("""
 
     .stChatMessage * {
         font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif !important;
+    }
+    /* 답변 본문이 외부 마크다운 스타일에 의해 흰색으로 바뀌지 않도록 강제 */
+    [data-testid="stChatMessageContent"],
+    [data-testid="stChatMessageContent"] *,
+    [data-testid="stMarkdownContainer"],
+    [data-testid="stMarkdownContainer"] * {
+        color: #1c2833 !important;
     }
 
     [data-testid="stBottomBlockContainer"] {
@@ -593,7 +614,8 @@ with st.sidebar:
 
 # 대화 내용 표시
 for message in st.session_state.chat_history:
-    with st.chat_message(message["role"]):
+    role = normalize_chat_role(message.get("role", "assistant"))
+    with st.chat_message(role):
         if isinstance(message["content"], str):
             st.markdown(message["content"])
         else:
@@ -612,8 +634,9 @@ if prompt := st.chat_input("질문을 입력하세요"):
         with st.spinner("Perplexity 검색 중..."):
             chat_history_for_perplexity = []
             for msg in st.session_state.chat_history[:-1]:
-                if msg["role"] in ["user", "assistant"]:
-                    chat_history_for_perplexity.append({"role": msg["role"], "content": msg["content"]})
+                role = normalize_chat_role(msg.get("role", "assistant"))
+                if role in ["user", "assistant"]:
+                    chat_history_for_perplexity.append({"role": role, "content": msg["content"]})
 
             response_text = ""
             try:
