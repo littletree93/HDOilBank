@@ -11,7 +11,6 @@ from langchain_perplexity import ChatPerplexity
 from datetime import datetime
 import logging
 import re
-import base64
 
 # 환경 변수 로드
 load_dotenv()
@@ -225,8 +224,14 @@ st.markdown("""
         font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif !important;
     }
 
+    [data-testid="stBottomBlockContainer"] {
+        background: #f5f9fc !important;
+    }
     [data-testid="stChatInput"] {
         border-top: 1px solid #b8cddd !important;
+        background: #f5f9fc !important;
+    }
+    [data-testid="stChatInput"] > div {
         background: #f5f9fc !important;
     }
     [data-testid="stChatInput"] textarea {
@@ -267,6 +272,12 @@ st.markdown("""
         border-radius: 6px !important;
         background: #ffffff !important;
     }
+    [data-testid="stSidebar"] [data-testid="stFileUploader"] label,
+    [data-testid="stSidebar"] [data-testid="stFileUploader"] small,
+    [data-testid="stSidebar"] [data-testid="stFileUploader"] span,
+    [data-testid="stSidebar"] [data-testid="stFileUploader"] div {
+        color: #1f2f3d !important;
+    }
 
     p.hdo-side-h {
         font-size: 0.92rem !important;
@@ -305,20 +316,8 @@ st.markdown("""
         flex: 1 1 280px;
         min-width: 0;
     }
-    .hdo-page-header-logo {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding-left: 0.5rem;
-    }
-    .hdo-page-header-logo img {
-        display: block;
-        max-height: 76px;
-        width: auto;
-        max-width: min(260px, 40vw);
-        object-fit: contain;
-    }
+    .hdo-page-header-inner { display: block; }
+    .hdo-page-header-text { min-width: 0; }
     .hdo-page-header .hdo-en {
         font-size: 0.72rem;
         color: #5a6d80;
@@ -359,66 +358,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def _mime_for_logo_path(path: str) -> str:
-    ext = os.path.splitext(path)[1].lower()
-    if ext == ".svg":
-        return "image/svg+xml"
-    if ext in (".jpg", ".jpeg"):
-        return "image/jpeg"
-    if ext == ".webp":
-        return "image/webp"
-    return "image/png"
-
-
-# 로고 및 제목 영역 (텍스트 좌측 · 로고 우측, 한 블록으로 정렬)
-_logo_file = "logo.svg"
-_logo_paths = [
-    "hd_oilbank.svg",
-    "HD_Hyundai_Oilbank.svg",
-    "logo.svg",
-    "logo.png",
-    "logo.jpg",
-    "assets/logo.svg",
-    "assets/logo.png",
-    "images/logo.svg",
-    "images/logo.png",
-    "static/logo.svg",
-    "static/logo.png",
-]
-
-_logo_inner = ""
-for _path in _logo_paths:
-    if not os.path.exists(_path):
-        continue
-    try:
-        with open(_path, "rb") as _lf:
-            _b64 = base64.standard_b64encode(_lf.read()).decode("ascii")
-        _mime = _mime_for_logo_path(_path)
-        _logo_inner = (
-            f'<img src="data:{_mime};base64,{_b64}" alt="HD현대오일뱅크" '
-            'loading="lazy" decoding="async" />'
-        )
-        break
-    except Exception as _e:
-        logger.warning("로고 파일 로드 실패 (%s): %s", _path, _e)
-
-if not _logo_inner:
-    # 한 줄로 유지: 여러 줄+들여쓰기 HTML은 st.markdown이 마크다운 '코드 블록'으로 해석해 그대로 노출될 수 있음
-    _logo_inner = (
-        '<div style="min-width:160px;max-width:240px;height:64px;display:flex;align-items:center;'
-        'justify-content:center;padding:0 12px;background:linear-gradient(135deg,#003b73 0%,#005a9c 100%);'
-        'border:1px solid #002a52;border-radius:6px;">'
-        '<span style="color:#fff;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-align:center;">'
-        "HD HYUNDAI OILBANK</span></div>"
-    )
-    logger.warning("로고 파일을 찾을 수 없습니다: %s", _logo_file)
-
 st.markdown(
-    f"""<div class="hdo-page-header"><div class="hdo-page-header-inner"><div class="hdo-page-header-text">
+    """<div class="hdo-page-header"><div class="hdo-page-header-inner"><div class="hdo-page-header-text">
 <div class="hdo-en">HD Hyundai Oilbank</div>
 <h1 class="hdo-title">HD현대오일뱅크 <span class="sub">챗봇</span></h1>
 <p class="hdo-desc">질의 응답과 문서(PDF) 기반 검색을 함께 사용할 수 있습니다. 좌측 패널에서 언어 모델·인터넷 검색·RAG(PDF) 사용 여부를 설정한 뒤 하단에 질문해 주십시오.</p>
-</div><div class="hdo-page-header-logo">{_logo_inner}</div></div></div>""",
+</div></div></div>""",
     unsafe_allow_html=True,
 )
 
