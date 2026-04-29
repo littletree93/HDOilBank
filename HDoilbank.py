@@ -149,11 +149,22 @@ st.markdown("""
         background: rgba(255, 255, 255, 0.97) !important;
         border-bottom: 1px solid #b8cddd !important;
     }
-    [data-testid="stHeader"] * {
+    [data-testid="stHeader"] [data-testid="stToolbar"] * {
         color: #1f2f3d !important;
+        opacity: 1 !important;
     }
-    [data-testid="stToolbar"] button svg {
+    [data-testid="stHeader"] [data-testid="stToolbar"] button {
+        color: #1f2f3d !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid #c7d7e5 !important;
+    }
+    [data-testid="stHeader"] [data-testid="stToolbar"] button:hover {
+        background: #eef5fb !important;
+        border-color: #9fc0db !important;
+    }
+    [data-testid="stHeader"] [data-testid="stToolbar"] button svg {
         fill: #1f2f3d !important;
+        stroke: #1f2f3d !important;
     }
 
     [data-testid="stSidebar"] {
