@@ -120,6 +120,9 @@ st.markdown("""
     html, body, [class*="css"] {
         font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif !important;
     }
+    :root {
+        color-scheme: light !important;
+    }
 
     .stApp {
         background: linear-gradient(165deg, #f4f7fb 0%, #e9f0f7 50%, #e2ebf4 100%) !important;
@@ -133,6 +136,9 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #fafcfe 0%, #f2f7fb 100%) !important;
         border-right: 1px solid #c5d8e8 !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #1f2f3d !important;
     }
 
     [data-testid="stSidebar"] .block-container {
@@ -224,8 +230,14 @@ st.markdown("""
         background: #f5f9fc !important;
     }
     [data-testid="stChatInput"] textarea {
+        background: #ffffff !important;
+        color: #162433 !important;
         border: 1px solid #9ebad0 !important;
         border-radius: 6px !important;
+    }
+    [data-testid="stChatInput"] textarea::placeholder {
+        color: #657789 !important;
+        opacity: 1 !important;
     }
 
     .stButton > button {
@@ -245,6 +257,10 @@ st.markdown("""
     [data-testid="stSidebar"] .stRadio label,
     [data-testid="stSidebar"] [data-baseweb="radio"] {
         font-size: 0.9rem !important;
+    }
+    [data-testid="stSidebar"] .stRadio label p,
+    [data-testid="stSidebar"] [data-baseweb="radio"] span {
+        color: #1f2f3d !important;
     }
     [data-testid="stSidebar"] [data-testid="stFileUploader"] section {
         border: 1px dashed #7aa3c4 !important;
