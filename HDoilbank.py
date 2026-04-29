@@ -73,6 +73,10 @@ def normalize_chat_role(role: str) -> str:
     }
     return role_map.get(str(role).strip().lower(), "assistant")
 
+
+def chat_avatar(role: str) -> str:
+    return "👤" if normalize_chat_role(role) == "user" else "🤖"
+
 # LLM 모델 선택 함수
 def get_llm(model_name: str, temperature: float = 0.7) -> Any:
     """선택된 모델명에 따라 적절한 LLM 인스턴스를 반환합니다."""
@@ -144,6 +148,12 @@ st.markdown("""
     [data-testid="stHeader"] {
         background: rgba(255, 255, 255, 0.97) !important;
         border-bottom: 1px solid #b8cddd !important;
+    }
+    [data-testid="stHeader"] * {
+        color: #1f2f3d !important;
+    }
+    [data-testid="stToolbar"] button svg {
+        fill: #1f2f3d !important;
     }
 
     [data-testid="stSidebar"] {
@@ -615,7 +625,7 @@ with st.sidebar:
 # 대화 내용 표시
 for message in st.session_state.chat_history:
     role = normalize_chat_role(message.get("role", "assistant"))
-    with st.chat_message(role):
+    with st.chat_message(role, avatar=chat_avatar(role)):
         if isinstance(message["content"], str):
             st.markdown(message["content"])
         else:
@@ -626,7 +636,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
     # 사용자 메시지 추가
     st.session_state.chat_history.append({"role": "user", "content": prompt})
     
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar=chat_avatar("user")):
         st.write(prompt)
     
     # --- 1순위: 인터넷 검색 모델 처리 ---
@@ -684,7 +694,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
                 except Exception as e:
                     logger.warning(f"다음 질문 생성 실패: {e}")
 
-                with st.chat_message("assistant"):
+                with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                     st.markdown(response_text)
                 st.session_state.chat_history.append({"role": "assistant", "content": response_text})
 
@@ -764,7 +774,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
                         llm = get_llm(st.session_state.llm_model, temperature=1)
                         
                         response = ""
-                        with st.chat_message("assistant"):
+                        with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                             stream_placeholder = st.empty()
                             # 스트리밍으로 답변 생성
                             for chunk in llm.stream(system_prompt):
@@ -818,7 +828,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
                                 for i, question in enumerate(next_questions, 1):
                                     response += f"{i}. {question}\n\n"
                                 # 다음 질문 추가 후 다시 표시
-                                with st.chat_message("assistant"):
+                                with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                                     st.markdown(response)
                         except Exception as e:
                             # 다음 질문 생성 실패 시 무시하고 원래 답변만 표시
@@ -834,7 +844,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
                             st.session_state.conversation_memory = st.session_state.conversation_memory[-100:]
                     
                 except Exception as e:
-                    with st.chat_message("assistant"):
+                    with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                         st.write(f"오류가 발생했습니다: {str(e)}")
                     st.session_state.chat_history.append({"role": "assistant", "content": f"오류가 발생했습니다: {str(e)}"})
                     logger.error(f"RAG 답변 생성 오류: {e}")
@@ -842,7 +852,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
         # --- 2-2: RAG 사용이 선택되지 않았거나 PDF 파일이 없는 경우 (직접 LLM 사용) ---
         else:
             if st.session_state.use_rag and st.session_state.retriever is None:
-                with st.chat_message("assistant"):
+                with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                     st.warning("RAG를 사용하려면 먼저 PDF 파일을 업로드하고 처리해주세요.")
                 st.session_state.chat_history.append({"role": "assistant", "content": "RAG를 사용하려면 먼저 PDF 파일을 업로드하고 처리해주세요."})
                 logger.warning("RAG 선택되었으나 PDF 파일이 없음")
@@ -867,7 +877,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
 - 수정된 내용을 표시할 때 취소선이나 선을 그어서 표시하지 마세요"""
                     
                     response = ""
-                    with st.chat_message("assistant"):
+                    with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                         stream_placeholder = st.empty()
                         # 스트리밍으로 답변 생성
                         for chunk in llm.stream(direct_prompt):
@@ -917,7 +927,7 @@ if prompt := st.chat_input("질문을 입력하세요"):
                             for i, question in enumerate(next_questions, 1):
                                 response += f"{i}. {question}\n\n"
                             # 다음 질문 추가 후 다시 표시
-                            with st.chat_message("assistant"):
+                            with st.chat_message("assistant", avatar=chat_avatar("assistant")):
                                 st.markdown(response)
                     except Exception as e:
                         logger.warning(f"다음 질문 생성 실패: {e}")
