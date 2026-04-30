@@ -85,13 +85,13 @@ def get_llm(model_name: str, temperature: float = 0.7) -> Any:
     elif model_name == "claude-sonnet-4-5":
         from langchain_anthropic import ChatAnthropic
         return ChatAnthropic(model="claude-sonnet-4-5", temperature=temperature)
-    elif model_name == "gemini-3-pro-preview":
+    elif model_name == "gemini-2.5-flash":
         from langchain_google_genai import ChatGoogleGenerativeAI
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             st.error("GOOGLE_API_KEY가 환경변수에 설정되어 있지 않습니다.")
             st.stop()
-        return ChatGoogleGenerativeAI(model="gemini-3-pro-preview", google_api_key=api_key, temperature=temperature)
+        return ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, temperature=temperature)
     else:
         # 기본값: gpt-5.1
         return ChatOpenAI(model="gpt-5.1", temperature=temperature)
@@ -128,6 +128,8 @@ if "search_model" not in st.session_state:
 
 if "llm_model" not in st.session_state:
     st.session_state.llm_model = "gpt-5.1"
+if st.session_state.llm_model == "gemini-3-pro-preview":
+    st.session_state.llm_model = "gemini-2.5-flash"
 
 # CSS 스타일 (HD현대오일뱅크 톤: 그룹 남청·에너지 블루 포인트)
 st.markdown("""
@@ -471,7 +473,7 @@ def search_with_perplexity_chat(prompt: str, history: list, temperature: float =
 with st.sidebar:
     # 1. LLM 모델 선택
     st.markdown('<p class="hdo-side-h">1. LLM 모델 선택</p>', unsafe_allow_html=True)
-    all_models = ["gpt-5.1", "gemini-3-pro-preview", "claude-sonnet-4-5"]
+    all_models = ["gpt-5.1", "gemini-2.5-flash", "claude-sonnet-4-5"]
     
     if 'llm_model' not in st.session_state:
         st.session_state.llm_model = all_models[0]
